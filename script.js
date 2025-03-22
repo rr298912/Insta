@@ -1,22 +1,27 @@
-const frases = [
-    "A vida é uma aventura ousada, ou nada.",
-    "Acredite que você pode e você já está no meio do caminho.",
-    "A felicidade não é algo pronto. Ela vem de suas próprias ações.",
-    // Adicione mais frases aqui
-];
+document.addEventListener("DOMContentLoaded", function () {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function (position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
 
-const fraseElemento = document.getElementById('frase');
-fraseElemento.textContent = frases[Math.floor(Math.random() * frases.length)];
+                console.log("Localização capturada:", latitude, longitude); // Só para teste
 
-if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-        function(position) {
-            console.log("Localização:", position.coords.latitude, position.coords.longitude);
-        },
-        function(error) {
-            console.error("Erro ao obter localização:", error);
-        }
-    );
-} else {
-    alert("Geolocalização não suportada pelo seu navegador.");
-}
+                // Envia os dados para a API
+                fetch("/api/registerLocation", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ latitude, longitude })
+                })
+                .then(response => response.json())
+                .then(data => console.log("Resposta do servidor:", data))
+                .catch(error => console.error("Erro ao enviar localização:", error));
+            },
+            function (error) {
+                console.error("Erro ao obter localização:", error);
+            }
+        );
+    } else {
+        console.error("Geolocalização não suportada pelo navegador.");
+    }
+});
